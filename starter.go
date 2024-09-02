@@ -10,6 +10,14 @@ import (
 	"github.com/spf13/cast"
 )
 
+var (
+	authManager gorbac.AuthManager
+)
+
+func GetAuthManager() gorbac.AuthManager {
+	return authManager
+}
+
 func getMapStr(m map[string]interface{}, field string, value string) string {
 	if m[field] == "" {
 		return value
@@ -62,6 +70,7 @@ func (m RbacModule) Load(value interface{}) {
 	guest := getMapStr(cfg, "guest", "guest")
 	role := rbacManager.CreateRole(guest)
 	rbacManager.SetDefaultRoles(role)
+	authManager = rbacManager
 }
 
 func (m RbacModule) Close() {
