@@ -11,11 +11,15 @@ import (
 )
 
 var (
-	authManager gorbac.AuthManager
+	rbacservice *gorbac.RbacService
 )
 
-func GetAuthManager() gorbac.AuthManager {
-	return authManager
+func GetRbacService() *gorbac.RbacService {
+	return rbacservice
+}
+
+func GetRbac() gorbac.AuthManager {
+	return rbacservice.GetAuthManager()
 }
 
 func getMapStr(m map[string]interface{}, field string, value string) string {
@@ -60,8 +64,8 @@ func (m RbacModule) Load(value interface{}) {
 			return
 		}
 		tb := getMapStr(cfg, "table", "gorbac_table")
-		mysqlDB := goframeworkgoredis.GetRedisClient(db)
-		repos = gorbac_redis.NewRedisRbac(mysqlDB, tb)
+		redisDb := goframeworkgoredis.GetRedisClient(db)
+		repos = gorbac_redis.NewRedisRbac(redisDb, tb)
 	}
 
 	cache := cast.ToBool(cfg["cache"])
@@ -70,7 +74,8 @@ func (m RbacModule) Load(value interface{}) {
 	guest := getMapStr(cfg, "guest", "guest")
 	role := rbacManager.CreateRole(guest)
 	rbacManager.SetDefaultRoles(role)
-	authManager = rbacManager
+	//
+	rbacservice = gorbac.NewRbacServiceWithManager(rbacManager)
 }
 
 func (m RbacModule) Close() {
