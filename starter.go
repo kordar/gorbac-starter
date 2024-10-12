@@ -18,12 +18,12 @@ func GetRbacService() *gorbac.RbacService {
 	return rbacservice
 }
 
-func GetRbac() gorbac.AuthManager {
+func GetAuthManager() gorbac.AuthManager {
 	return rbacservice.GetAuthManager()
 }
 
 func getMapStr(m map[string]interface{}, field string, value string) string {
-	if m[field] == "" {
+	if m[field] == nil {
 		return value
 	} else {
 		return cast.ToString(m[field])
@@ -31,14 +31,21 @@ func getMapStr(m map[string]interface{}, field string, value string) string {
 }
 
 type RbacModule struct {
+	name string
+	load func(name string, value map[string]interface{})
+}
+
+func NewRbacModule(name string, load func(moduleName string, item map[string]interface{})) *RbacModule {
+	return &RbacModule{name, load}
 }
 
 func (m RbacModule) Name() string {
-	return "rbac_starter"
+	return m.name
 }
 
 func (m RbacModule) Load(value interface{}) {
 	cfg := cast.ToStringMap(value)
+
 	gorbac.SetTableName("rule", getMapStr(cfg, "t_rule", "sys_auth_rule"))
 	gorbac.SetTableName("item", getMapStr(cfg, "t_item", "sys_auth_item"))
 	gorbac.SetTableName("item-child", getMapStr(cfg, "t_item_child", "sys_auth_item_child"))
@@ -50,7 +57,7 @@ func (m RbacModule) Load(value interface{}) {
 	db := getMapStr(cfg, "db", "gorbac")
 	if driver == "mysql" {
 		if !goframeworkgormmysql.HasMysqlInstance(db) {
-			logger.Warnf("初始化rbac组件失败，请先初始化数据库%s", db)
+			logger.Warnf("[%s] 初始化rbac组件失败，请先初始化数据库%s", m.Name(), db)
 			return
 		}
 
@@ -60,7 +67,7 @@ func (m RbacModule) Load(value interface{}) {
 
 	if driver == "redis" {
 		if !goframeworkgoredis.HasRedisInstance(db) {
-			logger.Warnf("初始化rbac组件失败，请先初始化数据库%s", db)
+			logger.Warnf("[%s] 初始化rbac组件失败，请先初始化数据库%s", m.Name(), db)
 			return
 		}
 		tb := getMapStr(cfg, "table", "gorbac_table")
@@ -76,6 +83,10 @@ func (m RbacModule) Load(value interface{}) {
 	rbacManager.SetDefaultRoles(role)
 	//
 	rbacservice = gorbac.NewRbacServiceWithManager(rbacManager)
+
+	if m.load != nil {
+		m.load(m.Name(), cfg)
+	}
 }
 
 func (m RbacModule) Close() {
