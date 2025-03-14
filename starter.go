@@ -31,12 +31,17 @@ func getMapStr(m map[string]interface{}, field string, value string) string {
 }
 
 type RbacModule struct {
-	name string
-	load func(name string, value map[string]interface{})
+	name    string
+	load    func(name string, value map[string]interface{})
+	depends []string
 }
 
-func NewRbacModule(name string, load func(moduleName string, item map[string]interface{})) *RbacModule {
-	return &RbacModule{name, load}
+func NewRbacModule(name string, load func(moduleName string, item map[string]interface{}), depends ...string) *RbacModule {
+	return &RbacModule{name, load, depends}
+}
+
+func (m RbacModule) Depends() []string {
+	return m.depends
 }
 
 func (m RbacModule) Name() string {
