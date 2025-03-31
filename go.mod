@@ -6,7 +6,7 @@ require (
 	github.com/kordar/goframework-goredis v0.0.1
 	github.com/kordar/goframework-gorm-mysql v1.0.10
 	github.com/kordar/gologger v0.0.8
-	github.com/kordar/gorbac v1.1.1
+	github.com/kordar/gorbac v1.1.2
 	github.com/kordar/gorbac-gorm v0.0.5
 	github.com/kordar/gorbac-redis v0.0.3
 	github.com/spf13/cast v1.7.0
