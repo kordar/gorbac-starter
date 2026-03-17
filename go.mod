@@ -1,15 +1,16 @@
 module github.com/kordar/gorbac-starter
 
-go 1.18
+go 1.21.0
 
 require (
 	github.com/kordar/goframework-goredis v0.0.1
 	github.com/kordar/goframework-gorm-mysql v1.0.10
 	github.com/kordar/gologger v0.0.8
-	github.com/kordar/gorbac v1.1.2
-	github.com/kordar/gorbac-gorm v0.0.5
-	github.com/kordar/gorbac-redis v0.0.3
-	github.com/spf13/cast v1.7.0
+	github.com/kordar/gorbac v1.1.4
+	github.com/kordar/gorbac-cache-redis v0.0.1
+	github.com/kordar/gorbac-gorm v0.0.7
+	github.com/kordar/gorbac-redis v0.0.5
+	github.com/spf13/cast v1.10.0
 )
 
 require (

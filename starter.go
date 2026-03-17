@@ -1,12 +1,15 @@
 package gorbac_starter
 
 import (
+	"time"
+
 	goframeworkgoredis "github.com/kordar/goframework-goredis"
 	goframeworkgormmysql "github.com/kordar/goframework-gorm-mysql"
 	logger "github.com/kordar/gologger"
 	"github.com/kordar/gorbac"
-	"github.com/kordar/gorbac-gorm"
-	"github.com/kordar/gorbac-redis"
+	gorbac_cache_redis "github.com/kordar/gorbac-cache-redis"
+	gorbac_gorm "github.com/kordar/gorbac-gorm"
+	gorbac_redis "github.com/kordar/gorbac-redis"
 	"github.com/spf13/cast"
 )
 
@@ -28,6 +31,26 @@ func getMapStr(m map[string]interface{}, field string, value string) string {
 	} else {
 		return cast.ToString(m[field])
 	}
+}
+
+func getDuration(m map[string]interface{}, field string, value time.Duration) time.Duration {
+	if m[field] == nil {
+		return value
+	}
+	raw := m[field]
+	if s, ok := raw.(string); ok {
+		if s == "" {
+			return value
+		}
+		if d, err := time.ParseDuration(s); err == nil {
+			return d
+		}
+	}
+	sec := cast.ToInt64(raw)
+	if sec <= 0 {
+		return value
+	}
+	return time.Duration(sec) * time.Second
 }
 
 type RbacModule struct {
@@ -80,8 +103,26 @@ func (m RbacModule) Load(value interface{}) {
 		repos = gorbac_redis.NewRedisRbac(redisDb, tb)
 	}
 
+	if repos == nil {
+		logger.Warnf("[%s] 初始化rbac组件失败，未识别的driver=%s", m.Name(), driver)
+		return
+	}
+
 	cache := cast.ToBool(cfg["cache"])
 	rbacManager := gorbac.NewDefaultManager(repos, cache)
+
+	if cache && getMapStr(cfg, "cache_store", "") == "redis" {
+		cacheDB := getMapStr(cfg, "cache_store_db", db)
+		if !goframeworkgoredis.HasRedisInstance(cacheDB) {
+			logger.Warnf("[%s] 初始化rbac缓存失败，请先初始化redis=%s", m.Name(), cacheDB)
+			return
+		}
+		prefix := getMapStr(cfg, "cache_store_prefix", "gorbac")
+		ttl := getDuration(cfg, "cache_store_ttl", 10*time.Minute)
+		storeRedis := goframeworkgoredis.GetRedisClient(cacheDB)
+		store := gorbac_cache_redis.NewRedisCacheStore(storeRedis)
+		rbacManager.SetCacheStore(store, prefix, ttl)
+	}
 
 	guest := getMapStr(cfg, "guest", "guest")
 	role := rbacManager.CreateRole(guest)
