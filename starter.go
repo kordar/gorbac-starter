@@ -1,11 +1,11 @@
 package gorbac_starter
 
 import (
+	"log/slog"
 	"time"
 
 	goframeworkgoredis "github.com/kordar/goframework-goredis"
 	goframeworkgormmysql "github.com/kordar/goframework-gorm-mysql"
-	logger "github.com/kordar/gologger"
 	"github.com/kordar/gorbac"
 	gorbac_cache_redis "github.com/kordar/gorbac-cache-redis"
 	gorbac_gorm "github.com/kordar/gorbac-gorm"
@@ -85,7 +85,7 @@ func (m RbacModule) Load(value interface{}) {
 	db := getMapStr(cfg, "db", "gorbac")
 	if driver == "mysql" {
 		if !goframeworkgormmysql.HasMysqlInstance(db) {
-			logger.Warnf("[%s] 初始化rbac组件失败，请先初始化数据库%s", m.Name(), db)
+			slog.Warn("初始化rbac组件失败，请先初始化数据库", "module", m.Name(), "db", db)
 			return
 		}
 
@@ -95,7 +95,7 @@ func (m RbacModule) Load(value interface{}) {
 
 	if driver == "redis" {
 		if !goframeworkgoredis.HasRedisInstance(db) {
-			logger.Warnf("[%s] 初始化rbac组件失败，请先初始化数据库%s", m.Name(), db)
+			slog.Warn("初始化rbac组件失败，请先初始化数据库", "module", m.Name(), "db", db)
 			return
 		}
 		tb := getMapStr(cfg, "table", "gorbac_table")
@@ -104,7 +104,7 @@ func (m RbacModule) Load(value interface{}) {
 	}
 
 	if repos == nil {
-		logger.Warnf("[%s] 初始化rbac组件失败，未识别的driver=%s", m.Name(), driver)
+		slog.Warn("初始化rbac组件失败，未识别的driver", "module", m.Name(), "driver", driver)
 		return
 	}
 
@@ -114,7 +114,7 @@ func (m RbacModule) Load(value interface{}) {
 	if cache && getMapStr(cfg, "cache_store", "") == "redis" {
 		cacheDB := getMapStr(cfg, "cache_store_db", db)
 		if !goframeworkgoredis.HasRedisInstance(cacheDB) {
-			logger.Warnf("[%s] 初始化rbac缓存失败，请先初始化redis=%s", m.Name(), cacheDB)
+			slog.Warn("初始化rbac缓存失败，请先初始化redis", "module", m.Name(), "redis", cacheDB)
 			return
 		}
 		prefix := getMapStr(cfg, "cache_store_prefix", "gorbac")

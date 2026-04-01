@@ -3,13 +3,12 @@ module github.com/kordar/gorbac-starter
 go 1.21.0
 
 require (
-	github.com/kordar/goframework-goredis v0.0.1
-	github.com/kordar/goframework-gorm-mysql v1.0.10
-	github.com/kordar/gologger v0.0.8
-	github.com/kordar/gorbac v1.1.4
-	github.com/kordar/gorbac-cache-redis v0.0.1
-	github.com/kordar/gorbac-gorm v0.0.7
-	github.com/kordar/gorbac-redis v0.0.5
+	github.com/kordar/goframework-goredis v0.1.1
+	github.com/kordar/goframework-gorm-mysql v1.1.1
+	github.com/kordar/gorbac v1.2.1
+	github.com/kordar/gorbac-cache-redis v0.2.1
+	github.com/kordar/gorbac-gorm v0.1.1
+	github.com/kordar/gorbac-redis v0.1.1
 	github.com/spf13/cast v1.10.0
 )
 
@@ -19,7 +18,7 @@ require (
 	github.com/go-sql-driver/mysql v1.7.0 // indirect
 	github.com/jinzhu/inflection v1.0.0 // indirect
 	github.com/jinzhu/now v1.1.5 // indirect
-	github.com/kordar/godb v0.0.7 // indirect
+	github.com/kordar/godb v0.1.1 // indirect
 	github.com/redis/go-redis/v9 v9.6.1 // indirect
 	gorm.io/driver/mysql v1.5.7 // indirect
 	gorm.io/gorm v1.25.10 // indirect
